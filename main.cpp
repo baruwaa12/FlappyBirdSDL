@@ -1,67 +1,148 @@
 //basic init function
 #include <SDL.h>
 #include <iostream>
+#include "bird.hpp"
 
-int main()
+// These are the dimensions of the window 
+const int SCREEN_WIDTH = 900;
+const int SCREEN_HEIGHT = 507;
+
+// Start up SDL and create the window
+bool init();
+
+//Load the media
+bool loadMedia();
+
+// Shuts down SDL and free the media
+void close();
+
+// The window that we will be rendering to
+SDL_Window * gameWindow = NULL;
+
+// Surface containing the window
+SDL_Surface * BgSurface = NULL;
+
+// Background loaded to the screen
+SDL_Surface* gameBackground = NULL;
+
+// Load in the renderer
+SDL_Renderer* renderer = NULL;
+
+bool init()
 {
-  //start of colour loop var
-  int r = 255;
-  int g = 0;
-  int b = 0;
 
-  bool sec1 = true;
-  //end of colour loop var
-
-
-  SDL_Window* window;
-  SDL_Renderer* renderer;
-
-  window = SDL_CreateWindow( "Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 2000, 2000, SDL_WINDOW_BORDERLESS);
-
-  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  
-  while (true) {
-    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-
-    SDL_RenderClear(renderer);
-    
-    SDL_RenderPresent(renderer);
-    
-    SDL_Delay(40);
-
-
-    // colour loop, not the best but gets the job done.
-    if (g < 255 && sec1 == true) {
-      g++;
+    // Initialization flag - (checks whether an action or variable has been initalized or not)
+    bool success = true;
+     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+    {
+        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError() );
     }
-    else if (g >= 255 && r > 0) {
-      r -= 1;
-    }
-    else if (b < 255 && r <= 0) {
-      b++;
-    }
-    
-    if (b >= 255 && g > 0) {
-      sec1 = false;
-      g -= 1;
-    }
-    if (g <= 0 && sec1 == false && r < 255) {
-      r++;
-    }
-    if (sec1 == false && r == 255) {
-      if (b != 0) {
-        b -= 1;
-      }
-      else {
-        sec1 = true;
-      }
-    }
-  }
-  
+    else
+    {
+        // Create the window
+        gameWindow = SDL_CreateWindow("FlappyBirdSDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        if ( gameWindow == NULL )
+        {
+            // If the window cannot be created, retrieve the SDL error and set the flag to false
+            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError() );
+            success = false;
 
-  SDL_DestroyWindow( window );
-  
-  SDL_Quit();
+        }
+        else
+        {
+            // Retrieve the window surface
+            BgSurface = SDL_GetWindowSurface( gameWindow );
+            {
+                // Get the window surface
+                BgSurface = SDL_GetWindowSurface ( gameWindow );
+            }
+        }
+    }
+    return success;
 
-  return 0;
 }
+
+
+bool loadinMedia()
+{
+     // Set and load the success flag
+     bool success = true;
+
+
+     // Load in the background
+     gameBackground = SDL_LoadBMP("Background.bmp");
+     if ( gameBackground == NULL )
+     {
+        printf( "Unable to load image %s! SDL Error: %s\n", "Background.bmp", SDL_GetError() );
+        success = false;
+     }
+
+
+     return success;
+}
+
+
+void close()
+{
+    // Deallocate resources making up the surface for the background
+    SDL_FreeSurface( BgSurface );
+    BgSurface = NULL;
+
+    // Destroy the window
+    SDL_DestroyWindow( gameWindow );
+    gameWindow = NULL;
+
+    // Quit the SDL subsystems
+    SDL_Quit();
+
+}
+
+
+
+
+// Game loop
+int main( int argc, char* args[] )
+{
+	//Start up SDL and create window
+	if( !init() )
+	{
+		printf( "Failed to initialize!\n" );
+	}
+	else
+	{
+		//Load in necessary media
+		if( !loadinMedia() )
+		{
+			printf( "Failed to load media!\n" );
+		}
+		else
+		{
+			//Apply the image to the window surface
+			SDL_BlitSurface( gameBackground, NULL, BgSurface, NULL );
+
+			//Update the surface
+			SDL_UpdateWindowSurface( gameWindow );
+
+      
+
+            //Hack to get window to stay up
+            SDL_Event e; bool quit = false; while( quit == false ){ while( SDL_PollEvent( &e ) ){ if( e.type == SDL_QUIT ) quit = true; } }
+      
+		}
+    Bird inGameBird;
+    inGameBird.fly();
+    return 0;
+  
+    
+	}
+  
+
+}
+
+
+
+
+
+
+
+
