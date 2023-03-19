@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <iostream>
 #include "bird.hpp"
+#include "pipe.hpp"
 
 // These are the dimensions of the window 
 const int SCREEN_WIDTH = 900;
@@ -131,11 +132,14 @@ int main( int argc, char* args[] )
 		}
     Bird inGameBird;
     inGameBird.fly();
-    return 0;
-  
+    delete inGameBird
     
 	}
-  
+  Pipe inGamePipe;
+  inGamePipe.shown();
+  delete inGamePipe
+    
+  return 0;
 
 }
 
